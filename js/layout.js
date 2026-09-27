@@ -40,7 +40,7 @@
     }).join("");
     return (
       '<a class="skip-link" href="#main">Skip to content</a>' +
-      '<header class="site-header"><div class="wrap">' +
+      '<header class="site-header' + (current === "home" && document.documentElement.classList.contains("scrub") ? " is-over" : "") + '"><div class="wrap">' +
       '<a class="logo" href="index.html"' + (current === "home" ? ' aria-current="page"' : "") + ">" + esc(B.name) + "</a>" +
       '<nav class="site-nav" id="site-nav" aria-label="Main"><ul>' + links + "</ul></nav>" +
       '<button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>' +
@@ -67,6 +67,7 @@
       "</ul>" +
       "</div>" +
       '<p class="fine">Handmade in Celuk since ' + B.founded + ", by the family of " + esc(B.founder) + ".</p>" +
+      '<p class="footer-mark" aria-hidden="true">' + esc(B.name) + "</p>" +
       "</div></footer>"
     );
   }
@@ -80,16 +81,20 @@
     var btn = document.querySelector(".menu-toggle");
     var nav = document.getElementById("site-nav");
     if (!btn || !nav) return;
-    btn.addEventListener("click", function () {
-      var open = nav.classList.toggle("is-open");
+    function set(open) {
+      document.body.classList.toggle("menu-open", open);
       btn.setAttribute("aria-expanded", open ? "true" : "false");
       btn.textContent = open ? "Close" : "Menu";
+    }
+    btn.addEventListener("click", function () {
+      set(!document.body.classList.contains("menu-open"));
+    });
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest("a")) set(false);
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && nav.classList.contains("is-open")) {
-        nav.classList.remove("is-open");
-        btn.setAttribute("aria-expanded", "false");
-        btn.textContent = "Menu";
+      if (e.key === "Escape" && document.body.classList.contains("menu-open")) {
+        set(false);
         btn.focus();
       }
     });
