@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Visit and contact: custom silver commissions in Celuk | Suwana Silver</title>
+  <meta name="description" content="Visit Suwana Silver in Celuk, Bali, open daily 08:00–18:00, or ask for a custom silver piece: wedding rings, family motifs or your own design.">
+  <meta name="theme-color" content="#211a15">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <script src="data/content.js"></script>
+  <script src="js/layout.js"></script>
+  <div data-site-header></div>
+
+  <main id="main">
+    <div class="page-intro">
+      <div class="wrap">
+        <h1>Visit and contact</h1>
+        <p class="lead">Come to the shop in Celuk, or send us a message about a custom piece.</p>
+      </div>
+    </div>
+
+    <section class="section section-light on-light" id="commission" aria-labelledby="commission-h">
+      <div class="wrap two-col">
+        <div>
+          <h2 id="commission-h">Ask about a custom piece</h2>
+          <p>Wedding rings, a family motif, or your own design from a sketch or photo. Fill this in and WhatsApp opens with your message ready to send. We reply to talk through the design and the price.</p>
+          <p class="muted">If you live abroad, you can also email us at <a href="mailto:made.suwana05@gmail.com" data-fill="email">made.suwana05@gmail.com</a>.</p>
+        </div>
+        <form class="form" id="commission-form" novalidate>
+          <p class="error" role="alert"></p>
+          <div class="field">
+            <label for="c-piece">Type of piece</label>
+            <select id="c-piece" name="piece" required>
+              <option value="">Choose one</option>
+              <option>Wedding rings</option>
+              <option>Engagement ring</option>
+              <option>Ring</option>
+              <option>Earrings</option>
+              <option>Pendant</option>
+              <option>Bracelet</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-budget">Budget</label>
+            <select id="c-budget" name="budget">
+              <option>Not sure yet</option>
+              <option>Under IDR 1,000,000</option>
+              <option>IDR 1,000,000 to 3,000,000</option>
+              <option>IDR 3,000,000 to 6,000,000</option>
+              <option>Over IDR 6,000,000</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-timeline">When do you need it?</label>
+            <select id="c-timeline" name="timeline">
+              <option>No fixed date</option>
+              <option>Within 2 weeks</option>
+              <option>Within a month</option>
+              <option>In 1 to 3 months</option>
+              <option>Before I leave Bali</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="c-idea">Describe the piece</label>
+            <span class="hint" id="idea-hint">Motif, size, names or dates to include, anything that matters.</span>
+            <textarea id="c-idea" name="idea" aria-describedby="idea-hint" required></textarea>
+          </div>
+          <div class="field">
+            <label for="c-ref">Reference image <span class="muted">(optional)</span></label>
+            <span class="hint">WhatsApp can't take a file from this form. Choose it here as a reminder, then attach it in the chat.</span>
+            <input id="c-ref" name="reference" type="file" accept="image/*" aria-describedby="reference-note">
+            <span class="hint" id="reference-note" aria-live="polite"></span>
+          </div>
+          <div class="field">
+            <label for="c-name">Your name <span class="muted">(optional)</span></label>
+            <input id="c-name" name="name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="c-country">Where you live <span class="muted">(optional)</span></label>
+            <input id="c-country" name="country" type="text" autocomplete="country-name">
+          </div>
+          <button class="btn btn-primary" type="submit">Send on WhatsApp</button>
+          <p class="form-note form-sent" role="status" hidden></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="visit" aria-labelledby="visit-h">
+      <div class="wrap visit">
+        <div>
+          <h2 id="visit-h">Visit the shop</h2>
+          <p>The workshop is behind the shop, so you can watch the work.</p>
+          <ul class="contact-list">
+            <li><span class="k">Address</span><span data-fill="address">Jl. Jagaraga Celuk, Sukawati, Gianyar, Bali, Indonesia</span></li>
+            <li><span class="k">Opening hours</span><span data-fill="hours">Daily, 08:00–18:00</span></li>
+            <li><span class="k">WhatsApp</span><a data-wa="" href="https://wa.me/62987654321"><span data-fill="whatsapp">+62 987 654 321</span></a></li>
+            <li><span class="k">Instagram</span><a href="https://instagram.com/suwanasilver" data-fill="instagram">@suwanasilver</a></li>
+            <li><span class="k">Email</span><a href="mailto:made.suwana05@gmail.com" data-fill="email">made.suwana05@gmail.com</a></li>
+          </ul>
+          <div class="btn-row">
+            <a class="btn btn-primary" data-directions href="https://www.google.com/maps/search/Suwana+Silver+Celuk">Get directions</a>
+            <a class="btn btn-secondary" data-wa="Hello Suwana Silver, I have a question." href="https://wa.me/62987654321">Message us on WhatsApp</a>
+          </div>
+        </div>
+        <iframe class="map" data-map title="Map of Suwana Silver in Celuk, Bali" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <div data-site-footer></div>
+
+  <script>SuwanaLayout.render("contact");</script>
+  <script src="js/forms.js"></script>
+</body>
+</html>
