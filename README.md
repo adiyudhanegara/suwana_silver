@@ -11,7 +11,7 @@ Static site: plain HTML, CSS and JavaScript, no build step. GSAP + ScrollTrigger
 - `js/render.js`: fills collection, classes and reviews from the data file
 - `js/forms.js`: booking and commission forms; each builds a prefilled wa.me message
 - `js/story.js`: canvas frame scrubbing, scene-by-scene snapping, text and image reveals
-- `frames/desktop` (120 × 1280x720) and `frames/mobile` (60 × 540x720, cropped around the subject): WebP frames from the source video, with the sparkle watermark masked
+- `frames/desktop` (240 × 1280x720) and `frames/mobile` (240 × 540x720, cropped around the subject): every frame of the 24 fps video, as WebP with the sparkle watermark masked
 - `img/key-*.webp`: four still frames used when `prefers-reduced-motion` is on
 - `img/v-*.webp`: crops from the workshop video used as section images (doorway, tools, hands, flame, ring)
 

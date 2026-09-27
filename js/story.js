@@ -6,8 +6,8 @@
  * snaps to the next scene in the direction they were going, so each
  * swipe or wheel gesture plays one scene of the video.
  *
- * - Desktop: 120 frames, 1280x720 (frames/desktop/000.webp ... 119.webp)
- * - Phones (portrait): 60 frames, 540x720, cropped around the subject
+ * - Desktop: 240 frames, 1280x720 (frames/desktop/000.webp ... 239.webp)
+ * - Phones (portrait): 240 frames, 540x720, cropped around the subject
  * - prefers-reduced-motion, or GSAP failing to load: nothing here runs and
  *   the scenes stay as plain sections with still frames.
  *
@@ -32,9 +32,12 @@
   var navButtons = Array.prototype.slice.call(story.querySelectorAll("[data-go]"));
 
   var mobile = window.matchMedia("(max-width: 767px) and (orientation: portrait)").matches;
+  // Both sets hold every frame of the 24 fps video (240 frames). Phones get
+  // smaller portrait crops, not fewer frames. `step` converts the story's
+  // 12 fps frame units (0-119) into an index in the set.
   var SET = mobile
-    ? { dir: "frames/mobile/", count: 60, step: 2 }
-    : { dir: "frames/desktop/", count: 120, step: 1 };
+    ? { dir: "frames/mobile/", count: 240, step: 0.5 }
+    : { dir: "frames/desktop/", count: 240, step: 0.5 };
 
   // Scene stops. Time runs 0..TOTAL; each whole number is a scene where the
   // story comes to rest. `frame` is the source frame (0-119) shown there.
@@ -132,20 +135,12 @@
     draw();
   }
 
-  // Draw the frame for `current`, blending the two nearest source frames
-  // so motion stays smooth between the 12 fps frames of the video.
+  // Draw the source frame nearest to `current`. No blending: two frames on
+  // top of each other read as blur when the camera moves.
   function draw() {
     if (!cw) return;
-    var pos = Math.min(SET.count - 1, current / SET.step);
-    var a = Math.floor(pos), b = Math.min(SET.count - 1, a + 1), mix = pos - a;
-    var ia = nearestLoaded(a);
-    if (ia < 0) return;
-    paint(images[ia], ia);
-    if (mix > 0.02 && b !== a && loaded[b]) {
-      ctx.globalAlpha = mix;
-      paint(images[b], b);
-      ctx.globalAlpha = 1;
-    }
+    var idx = nearestLoaded(Math.min(SET.count - 1, Math.round(current / SET.step)));
+    if (idx >= 0) paint(images[idx], idx);
   }
 
   function paint(img, idx) {
@@ -169,9 +164,9 @@
       s.el.style.opacity = o.toFixed(3);
       s.el.style.pointerEvents = o > 0.6 ? "auto" : "none";
       // lines drift up as they arrive, down as they leave
-      var shift = (1 - o) * (d < 0 ? 40 : -24);
+      var shift = (1 - o) * (d < 0 ? 14 : -10);
       for (var k = 0; k < s.lines.length; k++) {
-        s.lines[k].style.transform = "translate3d(0," + (shift * (1 + k * 0.35)).toFixed(1) + "px,0)";
+        s.lines[k].style.transform = "translate3d(0," + (shift * (1 + k * 0.2)).toFixed(1) + "px,0)";
       }
     });
 
@@ -230,22 +225,24 @@
         start: "top top",
         end: function () { return "+=" + Math.round(window.innerHeight * TOTAL * SCROLL_PER_SCENE); },
         pin: true,
-        scrub: 1,
+        scrub: 0.4,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         snap: {
           snapTo: "labelsDirectional",
           inertia: false,
-          duration: { min: 0.9, max: 1.8 },
-          delay: 0.12,
-          ease: "sine.inOut"
+          duration: { min: 0.45, max: 0.9 },
+          delay: 0.08,
+          ease: "power2.inOut"
         },
         onLeave: function () { if (header) header.classList.remove("is-over"); },
         onEnterBack: function () { if (header) header.classList.toggle("is-over", proxy.t < HEADER_SWITCH); }
       },
       onUpdate: function () {
         var f = frameAt(proxy.t);
-        if (f !== current) { current = f; draw(); }
+        var changed = Math.round(f / SET.step) !== Math.round(current / SET.step);
+        current = f;
+        if (changed) draw();
         updateScenes(proxy.t);
       }
     });
