@@ -36,18 +36,19 @@
     ? { dir: "frames/mobile/", count: 60, step: 2 }
     : { dir: "frames/desktop/", count: 120, step: 1 };
 
-  // Scene stops. Time runs 0..6; each whole number is a scene where the
+  // Scene stops. Time runs 0..TOTAL; each whole number is a scene where the
   // story comes to rest. `frame` is the source frame (0-119) shown there.
   var STOPS = [
     { name: "doorway", frame: 0 },
     { name: "workbench", frame: 30 },
     { name: "hands", frame: 54 },
     { name: "torch", frame: 72 },
-    { name: "fire", frame: 98 },
     { name: "ring", frame: 116 },
     { name: "end", frame: 119 } // ring shrinks into the page, then unpins
   ];
   var TOTAL = STOPS.length - 1;
+  var RING = TOTAL - 1;          // last resting scene
+  var HEADER_SWITCH = RING + 0.35;
   var SCROLL_PER_SCENE = 1; // viewport heights of scroll per scene
 
   var scenes = Array.prototype.slice.call(story.querySelectorAll("[data-scene]")).map(function (el) {
@@ -57,7 +58,6 @@
   function frameAt(t) {
     var i = Math.min(TOTAL - 1, Math.max(0, Math.floor(t)));
     var p = Math.min(1, Math.max(0, t - i));
-    p = p * p * (3 - 2 * p); // ease between stops so each scene settles gently
     return STOPS[i].frame + (STOPS[i + 1].frame - STOPS[i].frame) * p;
   }
 
@@ -92,7 +92,7 @@
       loadedCount++;
       barFill.style.width = (loadedCount / SET.count * 100) + "%";
       if (loadedCount === SET.count) bar.classList.add("is-done");
-      if (Math.abs(Math.round(current / SET.step) - i) < 3) draw();
+      if (Math.abs(current / SET.step - i) < 3) draw();
       done && done();
     };
     img.onerror = function () { done && done(); };
@@ -132,10 +132,23 @@
     draw();
   }
 
+  // Draw the frame for `current`, blending the two nearest source frames
+  // so motion stays smooth between the 12 fps frames of the video.
   function draw() {
-    var idx = nearestLoaded(Math.min(SET.count - 1, Math.round(current / SET.step)));
-    if (idx < 0 || !cw) return;
-    var img = images[idx];
+    if (!cw) return;
+    var pos = Math.min(SET.count - 1, current / SET.step);
+    var a = Math.floor(pos), b = Math.min(SET.count - 1, a + 1), mix = pos - a;
+    var ia = nearestLoaded(a);
+    if (ia < 0) return;
+    paint(images[ia], ia);
+    if (mix > 0.02 && b !== a && loaded[b]) {
+      ctx.globalAlpha = mix;
+      paint(images[b], b);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function paint(img, idx) {
     var iw = img.naturalWidth, ih = img.naturalHeight;
     var scale = Math.max(cw / iw, ch / ih);
     var dw = iw * scale, dh = ih * scale;
@@ -152,7 +165,7 @@
       var o;
       if (s.i === 0 && d < 0) o = 1;
       else o = 1 - Math.min(1, Math.max(0, (Math.abs(d) - 0.12) / 0.3));
-      if (s.i === 5 && d > 0) o = 1 - Math.min(1, Math.max(0, (d - 0.3) / 0.3)); // ring text leaves before the shrink
+      if (s.i === RING && d > 0) o = 1 - Math.min(1, Math.max(0, (d - 0.3) / 0.3)); // ring text leaves before the shrink
       s.el.style.opacity = o.toFixed(3);
       s.el.style.pointerEvents = o > 0.6 ? "auto" : "none";
       // lines drift up as they arrive, down as they leave
@@ -162,7 +175,7 @@
       }
     });
 
-    var nearest = Math.min(5, Math.round(t));
+    var nearest = Math.min(RING, Math.round(t));
     if (nearest !== activeScene) {
       navButtons.forEach(function (b) {
         if (+b.getAttribute("data-go") === nearest) b.setAttribute("aria-current", "step");
@@ -174,12 +187,12 @@
     cue.style.opacity = Math.max(0, 1 - t * 3).toFixed(2);
 
     // Last step: the film shrinks into a framed picture on the light page.
-    var e = Math.max(0, Math.min(1, t - 5));
+    var e = Math.max(0, Math.min(1, t - RING));
     e = e * e * (3 - 2 * e);
     var inset = (e * 9).toFixed(2);
     var side = (e * (mobile ? 5 : 14)).toFixed(2);
     wrap.style.clipPath = e > 0 ? "inset(" + inset + "% " + side + "% " + inset + "% " + side + "% round " + (e * 6).toFixed(1) + "px)" : "";
-    if (header) header.classList.toggle("is-over", t < 5.35);
+    if (header) header.classList.toggle("is-over", t < HEADER_SWITCH);
   }
 
   // ---- Boot ----
@@ -217,24 +230,22 @@
         start: "top top",
         end: function () { return "+=" + Math.round(window.innerHeight * TOTAL * SCROLL_PER_SCENE); },
         pin: true,
-        scrub: 0.9,
+        scrub: 1,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         snap: {
           snapTo: "labelsDirectional",
           inertia: false,
-          duration: { min: 0.5, max: 1.4 },
-          delay: 0.04,
-          ease: "power2.inOut"
+          duration: { min: 0.9, max: 1.8 },
+          delay: 0.12,
+          ease: "sine.inOut"
         },
         onLeave: function () { if (header) header.classList.remove("is-over"); },
-        onEnterBack: function () { if (header) header.classList.toggle("is-over", proxy.t < 5.35); }
+        onEnterBack: function () { if (header) header.classList.toggle("is-over", proxy.t < HEADER_SWITCH); }
       },
       onUpdate: function () {
         var f = frameAt(proxy.t);
-        var changed = Math.round(f / SET.step) !== Math.round(current / SET.step);
-        current = f;
-        if (changed) draw();
+        if (f !== current) { current = f; draw(); }
         updateScenes(proxy.t);
       }
     });
