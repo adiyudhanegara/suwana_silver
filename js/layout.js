@@ -119,7 +119,24 @@
     });
   }
 
+  function orderMessage(p) {
+    return "Hello Suwana Silver, I would like to order the " + p.name + " (" + idr(p.priceIDR) + "). Is it available?";
+  }
+
+  function productCard(p) {
+    return (
+      '<article class="product" id="' + esc(p.id) + '" data-sample="true">' +
+      '<div class="ph" role="img" aria-label="Photo placeholder: ' + esc(p.photo) + '">Photo: ' + esc(p.photo) + "</div>" +
+      "<h3>" + esc(p.name) + "</h3>" +
+      '<p class="price">' + idr(p.priceIDR) + '<br><span class="usd">' + usd(p.priceIDR) + "</span></p>" +
+      '<p class="muted">' + esc(p.technique) + "</p>" +
+      '<a class="order" href="' + waLink(orderMessage(p)) + '">Order on WhatsApp<span class="visually-hidden">: ' + esc(p.name) + "</span></a>" +
+      "</article>"
+    );
+  }
+
   window.SuwanaLayout = {
+    productCard: productCard,
     esc: esc,
     waLink: waLink,
     idr: idr,

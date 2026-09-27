@@ -370,3 +370,74 @@ main { padding-top: var(--header-h); }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; }
 }
+
+/* ---------- Inner pages ---------- */
+.page-intro { padding: var(--space-4) 0 var(--space-3); }
+@media (min-width: 900px) { .page-intro { padding: var(--space-5) 0 var(--space-4); } }
+.page-intro h1 { font-size: clamp(40px, 9vw, 64px); line-height: 1.05; }
+.page-intro .lead { font-size: 20px; line-height: 1.5; }
+
+.jump { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.jump a { color: var(--polished-silver); }
+
+.type-group { padding: var(--space-4) 0; border-top: 1px solid rgba(163, 168, 172, .25); }
+.type-group h2 { margin-bottom: 0; }
+
+/* Numbered class sequence (a real sequence) */
+.sequence { list-style: none; margin: var(--space-3) 0 0; padding: 0; max-width: 40em; }
+.sequence li { display: grid; grid-template-columns: 2.2em 1fr; gap: 0 var(--space-1); padding: var(--space-2) 0; border-top: 1px solid rgba(163, 168, 172, .3); }
+.sequence .n { font-family: var(--font-display); font-size: 22px; color: var(--oxidized-silver); line-height: 1.25; }
+.sequence h3 { margin: 0 0 4px; }
+.sequence p { margin: 0; }
+
+.two-col { display: grid; gap: var(--space-4); }
+@media (min-width: 900px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+/* Forms */
+.form { max-width: 34em; }
+.field { margin: 0 0 var(--space-3); border: 0; padding: 0; }
+.field > label, .field legend { display: block; font-weight: 600; margin-bottom: 6px; padding: 0; }
+.hint { display: block; font-size: 15px; color: var(--oxidized-silver); margin: -2px 0 8px; }
+.section-light .hint { color: var(--oxidized-silver-deep); }
+.form input[type="text"], .form input[type="date"], .form input[type="number"], .form input[type="email"],
+.form select, .form textarea {
+  width: 100%;
+  font: 17px/1.4 var(--font-body);
+  color: var(--polished-silver);
+  background: var(--soot-raised);
+  border: 1px solid var(--oxidized-silver);
+  border-radius: 2px;
+  padding: 11px 12px;
+  min-height: 48px;
+}
+.form textarea { min-height: 120px; resize: vertical; }
+.form select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--oxidized-silver) 50%), linear-gradient(-45deg, transparent 50%, var(--oxidized-silver) 50%); background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+.form input[type="file"] { font: 16px var(--font-body); color: var(--polished-silver); max-width: 100%; }
+.form input:focus-visible, .form select:focus-visible, .form textarea:focus-visible { border-color: var(--torch-blue); }
+.choices { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.choices label { display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 400; }
+.choices input { width: 20px; height: 20px; accent-color: var(--torch-blue); margin: 0; }
+.form .error { color: var(--polished-silver); background: #6b2b22; padding: 8px 12px; margin: 0 0 var(--space-2); display: none; }
+.form .error.is-shown { display: block; }
+.form-note { font-size: 15px; color: var(--oxidized-silver); margin-top: var(--space-2); }
+
+/* FAQ */
+.faq { max-width: 40em; }
+.faq details { border-top: 1px solid rgba(238, 241, 243, .35); }
+.faq details:last-child { border-bottom: 1px solid rgba(238, 241, 243, .35); }
+.faq summary { cursor: pointer; padding: var(--space-2) 0; font-family: var(--font-display); font-size: 20px; list-style-position: outside; margin-left: 1.1em; }
+.faq details p { margin: 0 0 var(--space-2); }
+
+.contact-list { list-style: none; margin: 0 0 var(--space-3); padding: 0; }
+.contact-list li { margin-bottom: 10px; }
+.contact-list .k { display: block; font-size: 15px; color: var(--oxidized-silver); }
+.section-light .form input[type="text"], .section-light .form input[type="date"], .section-light .form input[type="number"],
+.section-light .form select, .section-light .form textarea {
+  background-color: #ffffff;
+  color: var(--soot);
+  border-color: var(--oxidized-silver-deep);
+}
+.section-light .form select { background-image: linear-gradient(45deg, transparent 50%, var(--oxidized-silver-deep) 50%), linear-gradient(-45deg, transparent 50%, var(--oxidized-silver-deep) 50%); }
+.section-light .form input[type="file"] { color: var(--soot); }
+.section-light .form input:focus-visible, .section-light .form select:focus-visible, .section-light .form textarea:focus-visible { border-color: var(--torch-blue-deep); }
+.section-light .form-note { color: var(--oxidized-silver-deep); }

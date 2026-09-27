@@ -1,24 +1,31 @@
-/* Homepage: fills the collection preview, class list and reviews from data/content.js. */
+/* Fills any page with content from data/content.js: collection, classes, reviews. */
 (function () {
   var S = window.SUWANA.sample;
   var L = window.SuwanaLayout;
   var esc = L.esc;
 
-  function orderMessage(p) {
-    return "Hello Suwana Silver, I would like to order the " + p.name + " (" + L.idr(p.priceIDR) + "). Is it available?";
-  }
-
   var grid = document.getElementById("collection-preview");
   if (grid) {
-    grid.innerHTML = S.products.filter(function (p) { return p.featured; }).slice(0, 6).map(function (p) {
+    grid.innerHTML = S.products.filter(function (p) { return p.featured; }).slice(0, 6).map(L.productCard).join("");
+  }
+
+  var groups = document.getElementById("collection-groups");
+  if (groups) {
+    var TYPES = [
+      { id: "rings", label: "Rings" },
+      { id: "earrings", label: "Earrings" },
+      { id: "pendants", label: "Pendants" },
+      { id: "bracelets", label: "Bracelets" }
+    ];
+    groups.innerHTML = TYPES.map(function (t) {
+      var items = S.products.filter(function (p) { return p.type === t.id; });
+      if (!items.length) return "";
       return (
-        '<article class="product" data-sample="true">' +
-        '<div class="ph" role="img" aria-label="Photo placeholder: ' + esc(p.photo) + '">Photo: ' + esc(p.photo) + "</div>" +
-        "<h3>" + esc(p.name) + "</h3>" +
-        '<p class="price">' + L.idr(p.priceIDR) + '<br><span class="usd">' + L.usd(p.priceIDR) + "</span></p>" +
-        '<p class="muted">' + esc(p.technique) + "</p>" +
-        '<a class="order" href="' + L.waLink(orderMessage(p)) + '">Order on WhatsApp<span class="visually-hidden">: ' + esc(p.name) + "</span></a>" +
-        "</article>"
+        '<section class="type-group" id="' + t.id + '" aria-labelledby="' + t.id + '-h">' +
+        '<div class="wrap">' +
+        '<h2 id="' + t.id + '-h">' + t.label + "</h2>" +
+        '<div class="grid">' + items.map(L.productCard).join("") + "</div>" +
+        "</div></section>"
       );
     }).join("");
   }

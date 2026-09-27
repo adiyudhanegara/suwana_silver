@@ -38,9 +38,9 @@ window.SUWANA = {
     classIncludes: "925 silver, tools, guidance, tea and snacks, and polishing, so you take your piece home the same day.",
 
     classes: [
-      { id: "single", name: "Single class", people: "1 person", hours: "3 hours", makes: "Make one ring or pendant", priceIDR: 450000 },
-      { id: "couple", name: "Couple class", people: "2 people", hours: "3 hours", makes: "Make a pair of rings", priceIDR: 850000 },
-      { id: "family", name: "Family class", people: "Up to 4 people, children from 7 years", hours: "3.5 hours", makes: "One piece each", priceIDR: 1500000 }
+      { id: "single", name: "Single class", people: "1 person", maxPeople: 1, hours: "3 hours", makes: "Make one ring or pendant", priceIDR: 450000 },
+      { id: "couple", name: "Couple class", people: "2 people", maxPeople: 2, hours: "3 hours", makes: "Make a pair of rings", priceIDR: 850000 },
+      { id: "family", name: "Family class", people: "Up to 4 people, children from 7 years", maxPeople: 4, hours: "3.5 hours", makes: "One piece each", priceIDR: 1500000 }
     ],
 
     products: [
