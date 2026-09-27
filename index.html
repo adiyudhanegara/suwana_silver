@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Suwana Silver: handmade silver and silver classes in Celuk, Bali</title>
   <meta name="description" content="A family silver workshop in Celuk, Bali, since 1997. Make your own silver ring in a 3-hour class, buy handmade 925 silver jewelry, or order a custom piece.">
-  <meta name="theme-color" content="#211a15">
+  <meta name="theme-color" content="#1c1814">
   <script>
-    // Turn on the scroll-scrubbed story before first paint, unless the
-    // visitor prefers reduced motion.
+    // Turn on the scroll story before first paint, unless the visitor prefers reduced motion.
     if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       document.documentElement.classList.add("scrub");
     }
@@ -18,120 +17,164 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Source+Sans+3:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Marcellus&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="home">
   <script src="data/content.js"></script>
   <script src="js/layout.js"></script>
   <div data-site-header></div>
 
   <main id="main" class="home">
 
-    <!-- 1-5: the scroll story. Without JS or with reduced motion these are plain sections with still frames. -->
+    <!-- The scroll story. Each scroll gesture moves to the next scene. Without JS or with reduced motion these are plain sections. -->
     <section class="story" aria-label="The workshop, from the doorway to a finished ring">
       <div class="story-canvas-wrap">
         <canvas id="story-canvas" aria-hidden="true"></canvas>
       </div>
       <p class="visually-hidden">Video, controlled by scrolling: the camera moves through the carved wooden doorway of the workshop, over a workbench, to an artisan in a white udeng soldering with a small torch. The flame flares and becomes a finished silver ring resting on a wooden table.</p>
 
-      <div class="scene scene-doorway">
+      <div class="scroll-cue" aria-hidden="true"><span></span>Scroll</div>
+
+      <div class="scene scene-doorway" data-scene="0">
         <figure class="scene-still">
           <img src="img/key-doorway-1280.webp" srcset="img/key-doorway-640.webp 640w, img/key-doorway-1280.webp 1280w" sizes="100vw" width="1280" height="720" alt="The carved wooden doorway of the Suwana Silver workshop, with brick walls and workbenches inside.">
         </figure>
-        <div class="wrap"><div class="panel">
-          <h1 class="scene-title">Suwana Silver</h1>
-          <p class="scene-lead">Handmade silver from a family workshop in Celuk, since 1997.</p>
-        </div></div>
+        <div class="wrap">
+          <h1 class="scene-title"><span data-line>Suwana</span> <span data-line>Silver</span></h1>
+          <p class="scene-lead" data-line>Handmade silver from a family workshop in Celuk, since 1997.</p>
+        </div>
       </div>
 
-      <div class="scene scene-workbench">
-        <div class="wrap"><div class="panel">
-          <h2>Three generations, one workbench</h2>
-          <p>Made Suwana's grandfather was the first silversmith in the family. He worked at a charcoal block in the family compound in Celuk, making silver pieces for ceremonies and for neighbors in the village.</p>
-          <p>Everything was done by hand: melting, drawing wire, twisting it into filigree, and setting tiny silver grains one by one.</p>
-        </div></div>
+      <div class="scene scene-workbench" data-scene="1">
+        <div class="wrap">
+          <h2 data-line>Three generations, one workbench.</h2>
+          <p class="scene-lead" data-line>Made Suwana's grandfather was the first silversmith in the family. He worked at a charcoal block in the family compound in Celuk, making silver for ceremonies and for neighbors in the village.</p>
+        </div>
       </div>
 
-      <div class="scene scene-process">
+      <div class="scene scene-split scene-hands" data-scene="2">
         <figure class="scene-still">
           <img src="img/key-artisan-1280.webp" srcset="img/key-artisan-640.webp 640w, img/key-artisan-1280.webp 1280w" sizes="100vw" width="1280" height="720" loading="lazy" alt="An artisan in a white udeng solders a ring with a small torch on a charcoal block.">
         </figure>
-        <div class="wrap"><div class="panel">
-          <h2>How a piece is made</h2>
-          <ol class="steps">
-            <li><span class="step-name"><span class="step-num">1</span>Design</span><span class="step-text">The piece is drawn and the motif chosen: a flower, a lotus, a Barong.</span></li>
-            <li><span class="step-name"><span class="step-num">2</span>Melt</span><span class="step-text">925 silver is melted in a clay crucible and poured into a bar.</span></li>
-            <li><span class="step-name"><span class="step-num">3</span>Draw wire</span><span class="step-text">The bar is pulled through a draw plate until the wire is thin enough.</span></li>
-            <li><span class="step-name"><span class="step-num">4</span>Shape filigree</span><span class="step-text">Fine wire is twisted and bent into the motif with tweezers.</span></li>
-            <li><span class="step-name"><span class="step-num">5</span>Solder</span><span class="step-text">Each joint is soldered on the charcoal block with a small torch.</span></li>
-            <li><span class="step-name"><span class="step-num">6</span>Polish</span><span class="step-text">The piece is cleaned, filed and polished by hand.</span></li>
+        <div class="wrap">
+          <h2 data-line>Everything by hand.</h2>
+          <ol class="steps" data-line>
+            <li><span class="step-num">01</span><span class="step-name">Design</span><span class="step-text">The piece is drawn and the motif chosen: a flower, a lotus, a Barong.</span></li>
+            <li><span class="step-num">02</span><span class="step-name">Melt</span><span class="step-text">925 silver is melted in a clay crucible and poured into a bar.</span></li>
+            <li><span class="step-num">03</span><span class="step-name">Draw wire</span><span class="step-text">The bar is pulled through a draw plate until the wire is thin enough.</span></li>
           </ol>
-        </div></div>
+        </div>
       </div>
 
-      <div class="scene scene-fire">
+      <div class="scene scene-split scene-torch" data-scene="3">
+        <div class="wrap">
+          <h2 data-line>Grain by grain.</h2>
+          <ol class="steps" start="4" data-line>
+            <li><span class="step-num">04</span><span class="step-name">Shape filigree</span><span class="step-text">Fine wire is twisted and bent into the motif with tweezers.</span></li>
+            <li><span class="step-num">05</span><span class="step-name">Solder</span><span class="step-text">Each joint is soldered on the charcoal block with a small torch.</span></li>
+            <li><span class="step-num">06</span><span class="step-name">Polish</span><span class="step-text">The piece is cleaned, filed and polished by hand.</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="scene scene-fire" data-scene="4">
         <figure class="scene-still">
           <img src="img/key-flame-1280.webp" srcset="img/key-flame-640.webp 640w, img/key-flame-1280.webp 1280w" sizes="100vw" width="1280" height="720" loading="lazy" alt="The torch flame flares bright over the charcoal block.">
         </figure>
       </div>
 
-      <div class="scene scene-ring">
+      <div class="scene scene-ring" data-scene="5">
         <figure class="scene-still">
-          <img src="img/key-ring-1280.webp" srcset="img/key-ring-640.webp 640w, img/key-ring-1280.webp 1280w" sizes="100vw" width="1280" height="720" loading="lazy" alt="A finished silver ring with engraved and filigree detail rests on a wooden table.">
+          <img src="img/key-ring-1280.webp" srcset="img/key-ring-640.webp 640w, img/key-ring-1280.webp 1280w" sizes="100vw" width="1280" height="720" loading="lazy" alt="A finished silver ring with filigree and granulation rests on a wooden table.">
         </figure>
-        <div class="wrap"><div class="panel">
-          <h2>One ring, made by hand</h2>
-          <p>Every piece in the shop is made at this bench, one at a time.</p>
-        </div></div>
+        <div class="wrap">
+          <h2 data-line>One ring, made by hand.</h2>
+          <div class="btn-row" data-line style="margin-top:28px">
+            <a class="btn btn-primary" href="collection.html">See the collection</a>
+            <a class="btn btn-secondary" href="class.html">Make your own</a>
+          </div>
+        </div>
       </div>
+
+      <nav class="scene-nav" aria-label="Story scenes">
+        <ol>
+          <li><button type="button" data-go="0"><span class="label">Doorway</span><span class="tick"></span></button></li>
+          <li><button type="button" data-go="1"><span class="label">Workbench</span><span class="tick"></span></button></li>
+          <li><button type="button" data-go="2"><span class="label">Hands</span><span class="tick"></span></button></li>
+          <li><button type="button" data-go="3"><span class="label">Filigree</span><span class="tick"></span></button></li>
+          <li><button type="button" data-go="4"><span class="label">Fire</span><span class="tick"></span></button></li>
+          <li><button type="button" data-go="5"><span class="label">The ring</span><span class="tick"></span></button></li>
+        </ol>
+      </nav>
 
       <div class="story-progress" aria-hidden="true"><span></span></div>
     </section>
 
-    <!-- 5b: collection preview -->
-    <section class="section" aria-labelledby="collection-h">
+    <!-- The rest of the story -->
+    <section class="statement" aria-labelledby="statement-h">
       <div class="wrap">
+        <h2 id="statement-h" class="visually-hidden">The family and the shop</h2>
+        <p class="statement-text" data-words>Made grew up next to that workbench. He learned by watching first, then by doing: sorting wire, fanning the charcoal, and finally holding the torch himself.</p>
+        <div class="statement-grid">
+          <figure class="frame frame-a" data-reveal>
+            <img src="img/v-doorway.webp" width="680" height="720" loading="lazy" alt="Looking through the carved wooden doorway into the workshop.">
+          </figure>
+          <figure class="frame frame-b" data-reveal>
+            <img src="img/v-tools.webp" width="500" height="400" loading="lazy" alt="Tool jars, clay pots and silver scraps on the workbench.">
+          </figure>
+          <div class="copy">
+            <p>In 1997 he opened Suwana Silver, a jewelry shop built on the same bench and the same techniques.</p>
+            <p>The tools are a little newer now. The work is still done by hand, one piece at a time, in the workshop behind the shop.</p>
+            <p class="muted">Today visitors can sit at that bench too, and leave with a ring they made themselves.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collection preview -->
+    <section class="section" aria-labelledby="collection-h" style="padding-top:0">
+      <div class="wrap section-head">
         <h2 id="collection-h">In the shop now</h2>
-        <p class="muted">Handmade 925 silver. Order on WhatsApp to ask about sizes and availability.</p>
-        <div class="grid" id="collection-preview"></div>
+        <div>
+          <p class="muted" style="margin-bottom:20px">Handmade 925 silver. Order on WhatsApp to ask about sizes and availability.</p>
+          <div class="strip-controls">
+            <button class="round-btn" type="button" data-strip="-1" aria-label="Previous pieces" aria-controls="collection-preview">‹</button>
+            <button class="round-btn" type="button" data-strip="1" aria-label="Next pieces" aria-controls="collection-preview">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="strip" id="collection-preview" tabindex="0" aria-label="Pieces in the shop"></div>
+      <div class="wrap" style="margin-top:40px">
         <a class="btn btn-secondary" href="collection.html">See the full collection</a>
       </div>
     </section>
 
-    <!-- 5c: the rest of the story -->
-    <section class="section" aria-labelledby="story-h">
-      <div class="wrap story-more">
-        <div class="ph ph-wide" role="img" aria-label="Photo placeholder: I Made Suwana at his workbench, holding the torch">Photo: I Made Suwana at his workbench, holding the torch</div>
+    <!-- Silver class -->
+    <section class="section dark" aria-labelledby="class-h">
+      <div class="wrap classes-layout">
+        <figure class="frame" data-reveal>
+          <img src="img/v-hands.webp" width="580" height="420" loading="lazy" alt="Hands hold a torch and tweezers over a ring on the charcoal block.">
+        </figure>
         <div>
-          <h2 id="story-h">The shop, since 1997</h2>
-          <p>Made grew up next to that workbench. He learned by watching first, then by doing: sorting wire, fanning the charcoal, and finally holding the torch himself.</p>
-          <p>In 1997 he opened Suwana Silver, a jewelry shop built on the same bench and the same techniques. The tools are a little newer now. The work is still done by hand, one piece at a time, in the workshop behind the shop.</p>
-          <p>Today visitors can sit at that bench too, and leave with a ring they made themselves.</p>
+          <h2 id="class-h">Make your own silver ring</h2>
+          <p style="margin-top:28px;font-size:19px">A 3-hour class at the family workbench (3.5 hours for families). You shape the silver, solder it and polish it, with one of the family beside you. No experience needed.</p>
+          <ul class="class-list" id="class-list"></ul>
+          <p id="class-includes" class="muted"></p>
+          <div class="btn-row" style="margin-top:32px">
+            <a class="btn btn-primary" href="class.html#book">Book a class</a>
+            <a class="btn btn-secondary" href="class.html">What happens in a class</a>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 6: silver class teaser -->
-    <section class="section section-brick" aria-labelledby="class-h">
-      <div class="wrap">
-        <h2 id="class-h">Make your own silver ring</h2>
-        <p>A 3-hour class at the family workbench (3.5 hours for families). You shape the silver, solder it and polish it, with one of the family beside you. No experience needed.</p>
-        <ul class="class-list" id="class-list"></ul>
-        <p id="class-includes"></p>
-        <div class="btn-row">
-          <a class="btn btn-primary" href="class.html#book">Book a class</a>
-          <a class="btn btn-secondary" href="class.html">What happens in a class</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7: custom commissions teaser -->
-    <section class="section section-light on-light" aria-labelledby="commission-h">
+    <!-- Commissions -->
+    <section class="section" aria-labelledby="commission-h">
       <div class="wrap commission">
         <div>
-          <h2 id="commission-h">Custom pieces, made to order</h2>
-          <p>Send us a sketch, a photo or an idea. Made and the family will draw it, agree the price with you, and make it by hand in the workshop. If you live abroad, you can order by WhatsApp or email.</p>
+          <h2 id="commission-h">Made to order</h2>
+          <p style="font-size:19px">Send us a sketch, a photo or an idea. Made and the family will draw it, agree the price with you, and make it by hand in the workshop. If you live abroad, you can order by WhatsApp or email.</p>
           <ul class="plain-list">
             <li>Wedding rings and engagement rings</li>
             <li>Family motifs and names in filigree</li>
@@ -139,25 +182,24 @@
           </ul>
           <a class="btn btn-primary" href="contact.html#commission">Start a commission</a>
         </div>
-        <div class="ph ph-wide" role="img" aria-label="Photo placeholder: a pair of custom wedding rings next to the pencil sketch they were made from">Photo: a pair of custom wedding rings next to the pencil sketch they were made from</div>
+        <div class="ph" role="img" aria-label="Photo placeholder: a pair of custom wedding rings next to the pencil sketch they were made from">A pair of custom wedding rings next to the pencil sketch they were made from</div>
       </div>
     </section>
 
-    <!-- 8: visit us -->
-    <section class="section" aria-labelledby="visit-h">
+    <!-- Visit -->
+    <section class="section section-light" aria-labelledby="visit-h">
       <div class="wrap visit">
         <div>
           <h2 id="visit-h">Visit the workshop</h2>
-          <p>The shop is in Celuk, the silver village of Gianyar. The workshop is behind the shop, so you can watch the work.</p>
+          <p class="address-big" data-fill="address">Jl. Jagaraga Celuk, Sukawati, Gianyar, Bali, Indonesia</p>
           <dl>
-            <dt>Address</dt>
-            <dd data-fill="address">Jl. Jagaraga Celuk, Sukawati, Gianyar, Bali, Indonesia</dd>
-            <dt>Opening hours</dt>
+            <dt>Open</dt>
             <dd data-fill="hours">Daily, 08:00–18:00</dd>
             <dt>WhatsApp</dt>
             <dd data-fill="whatsapp">+62 987 654 321</dd>
           </dl>
-          <div class="btn-row">
+          <p class="muted">The workshop is behind the shop, so you can watch the work.</p>
+          <div class="btn-row" style="margin-top:28px">
             <a class="btn btn-primary" data-directions href="https://www.google.com/maps/search/Suwana+Silver+Celuk">Get directions</a>
             <a class="btn btn-secondary" data-wa="Hello Suwana Silver, I would like to visit the shop." href="https://wa.me/62987654321">Message us on WhatsApp</a>
           </div>
@@ -166,11 +208,14 @@
       </div>
     </section>
 
-    <!-- 9: reviews -->
-    <section class="section section-brick" aria-labelledby="reviews-h">
-      <div class="wrap">
-        <h2 id="reviews-h">What visitors say</h2>
-        <p class="rating" id="rating"></p>
+    <!-- Reviews -->
+    <section class="section" aria-labelledby="reviews-h">
+      <div class="wrap reviews-layout">
+        <div>
+          <h2 id="reviews-h" class="visually-hidden">What visitors say</h2>
+          <p class="score" id="score" aria-hidden="true"></p>
+          <p class="rating muted" id="rating"></p>
+        </div>
         <div class="reviews" id="reviews"></div>
       </div>
     </section>

@@ -1,14 +1,15 @@
 /*
- * Homepage scroll story.
+ * Homepage scroll story, scene by scene.
  *
- * Scroll position picks a frame from a pre-rendered WebP sequence and draws
- * it on a <canvas>. The video never plays by itself.
+ * Scroll position picks a frame from a pre-rendered WebP sequence and
+ * draws it on a <canvas>. When the visitor stops scrolling, the story
+ * snaps to the next scene in the direction they were going, so each
+ * swipe or wheel gesture plays one scene of the video.
  *
  * - Desktop: 120 frames, 1280x720 (frames/desktop/000.webp ... 119.webp)
- * - Phones (portrait): 60 frames, 540x720, pre-cropped around the subject
- *   (frames/mobile/000.webp ... 059.webp)
+ * - Phones (portrait): 60 frames, 540x720, cropped around the subject
  * - prefers-reduced-motion, or GSAP failing to load: nothing here runs and
- *   the scenes stay as plain sections with four still frames.
+ *   the scenes stay as plain sections with still frames.
  *
  * The <html> element gets the class "scrub" from an inline script in <head>
  * before first paint, so the layout does not jump.
@@ -21,43 +22,46 @@
   var ST = "https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js";
 
   var story = document.querySelector(".story");
+  var wrap = story.querySelector(".story-canvas-wrap");
   var canvas = document.getElementById("story-canvas");
   var ctx = canvas.getContext("2d");
-  var bar = document.querySelector(".story-progress");
+  var bar = story.querySelector(".story-progress");
   var barFill = bar.querySelector("span");
+  var cue = story.querySelector(".scroll-cue");
+  var header = document.querySelector(".site-header");
+  var navButtons = Array.prototype.slice.call(story.querySelectorAll("[data-go]"));
 
   var mobile = window.matchMedia("(max-width: 767px) and (orientation: portrait)").matches;
   var SET = mobile
     ? { dir: "frames/mobile/", count: 60, step: 2 }
     : { dir: "frames/desktop/", count: 120, step: 1 };
 
-  // Timeline, in "story seconds". Each segment maps a scroll span to a
-  // span of source frames (0-119 at 12 fps). Slower segments get more
-  // scroll so the text has time to be read.
-  var SEGMENTS = [
-    { t0: 0.0, t1: 1.6, f0: 0, f1: 24 },    // 1 Doorway
-    { t0: 1.6, t1: 3.2, f0: 24, f1: 38 },   // 2 Workbench
-    { t0: 3.2, t1: 6.2, f0: 38, f1: 74 },   // 3 Hands and torch
-    { t0: 6.2, t1: 7.6, f0: 74, f1: 100 },  // 4 Fire flare
-    { t0: 7.6, t1: 8.6, f0: 100, f1: 119 }, // 5 Ring reveal
-    { t0: 8.6, t1: 9.4, f0: 119, f1: 119 }  //   hold on the ring
+  // Scene stops. Time runs 0..6; each whole number is a scene where the
+  // story comes to rest. `frame` is the source frame (0-119) shown there.
+  var STOPS = [
+    { name: "doorway", frame: 0 },
+    { name: "workbench", frame: 30 },
+    { name: "hands", frame: 54 },
+    { name: "torch", frame: 72 },
+    { name: "fire", frame: 98 },
+    { name: "ring", frame: 116 },
+    { name: "end", frame: 119 } // ring shrinks into the page, then unpins
   ];
-  var TOTAL = 9.4;
-  var SCROLL_PER_SECOND = 0.8; // viewport heights of scroll per story second
+  var TOTAL = STOPS.length - 1;
+  var SCROLL_PER_SCENE = 1; // viewport heights of scroll per scene
 
-  // Text overlays: [fade in start, fully in, fade out start, fully out]
-  var SCENES = [
-    { el: ".scene-doorway", at: [-1, 0, 1.1, 1.5] },
-    { el: ".scene-workbench", at: [1.7, 1.9, 3.0, 3.2] },
-    { el: ".scene-process", at: [3.3, 3.5, 6.0, 6.2] },
-    { el: ".scene-ring", at: [8.0, 8.3, 99, 99] }
-  ].map(function (s) { s.node = document.querySelector(s.el); return s; });
+  var scenes = Array.prototype.slice.call(story.querySelectorAll("[data-scene]")).map(function (el) {
+    return { el: el, i: +el.getAttribute("data-scene"), lines: el.querySelectorAll("[data-line]") };
+  });
 
-  var steps = Array.prototype.slice.call(document.querySelectorAll(".scene-process .steps li"));
-  var STEPS_FROM = 3.4, STEPS_TO = 6.0;
+  function frameAt(t) {
+    var i = Math.min(TOTAL - 1, Math.max(0, Math.floor(t)));
+    var p = Math.min(1, Math.max(0, t - i));
+    p = p * p * (3 - 2 * p); // ease between stops so each scene settles gently
+    return STOPS[i].frame + (STOPS[i + 1].frame - STOPS[i].frame) * p;
+  }
 
-  // Horizontal focus point for desktop frames when the screen is narrower
-  // than 16:9 (keeps the doorway, the artisan's hands and the ring in view).
+  // Horizontal focus for desktop frames on screens narrower than 16:9.
   var FOCUS = [[0, .47], [30, .52], [45, .62], [85, .6], [92, .42], [102, .5], [105, .62], [119, .62]];
   function focusAt(f) {
     for (var i = 0; i < FOCUS.length - 1; i++) {
@@ -71,37 +75,13 @@
     return .5;
   }
 
-  function frameAt(t) {
-    for (var i = 0; i < SEGMENTS.length; i++) {
-      var s = SEGMENTS[i];
-      if (t <= s.t1 || i === SEGMENTS.length - 1) {
-        var p = Math.min(1, Math.max(0, (t - s.t0) / (s.t1 - s.t0)));
-        return s.f0 + (s.f1 - s.f0) * p;
-      }
-    }
-    return 0;
-  }
-
-  // ---- Frame loading ----
+  // ---- Frame loading: first frame now, then coarse to fine ----
   var images = new Array(SET.count);
   var loaded = new Array(SET.count);
   var loadedCount = 0;
+  var current = 0;
 
-  function src(i) {
-    return SET.dir + String(i).padStart(3, "0") + ".webp";
-  }
-
-  // Coarse to fine: every 16th frame first, then fill in, so scrubbing
-  // works early and gets smoother as frames arrive.
-  function loadOrder() {
-    var order = [], seen = {};
-    [16, 8, 4, 2, 1].forEach(function (stride) {
-      for (var i = 0; i < SET.count; i += stride) {
-        if (!seen[i]) { seen[i] = 1; order.push(i); }
-      }
-    });
-    return order;
-  }
+  function src(i) { return SET.dir + String(i).padStart(3, "0") + ".webp"; }
 
   function loadFrame(i, done) {
     var img = new Image();
@@ -112,7 +92,7 @@
       loadedCount++;
       barFill.style.width = (loadedCount / SET.count * 100) + "%";
       if (loadedCount === SET.count) bar.classList.add("is-done");
-      if (Math.round(current / SET.step) === i || needsRedraw) draw();
+      if (Math.abs(Math.round(current / SET.step) - i) < 3) draw();
       done && done();
     };
     img.onerror = function () { done && done(); };
@@ -120,15 +100,17 @@
   }
 
   function loadAll() {
-    var queue = loadOrder().slice(1); // frame 0 is loaded first, on its own
-    var inFlight = 0, MAX = 6;
-    function next() {
-      while (inFlight < MAX && queue.length) {
+    var order = [], seen = { 0: 1 };
+    [16, 8, 4, 2, 1].forEach(function (stride) {
+      for (var i = 0; i < SET.count; i += stride) if (!seen[i]) { seen[i] = 1; order.push(i); }
+    });
+    var inFlight = 0;
+    (function next() {
+      while (inFlight < 6 && order.length) {
         inFlight++;
-        loadFrame(queue.shift(), function () { inFlight--; next(); });
+        loadFrame(order.shift(), function () { inFlight--; next(); });
       }
-    }
-    next();
+    })();
   }
 
   function nearestLoaded(i) {
@@ -141,110 +123,157 @@
   }
 
   // ---- Drawing ----
-  var current = 0; // source frame, 0-119
-  var needsRedraw = true;
   var cw = 0, ch = 0;
-
   function resize() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     cw = Math.round(canvas.clientWidth * dpr);
     ch = Math.round(canvas.clientHeight * dpr);
-    if (canvas.width !== cw || canvas.height !== ch) {
-      canvas.width = cw;
-      canvas.height = ch;
-    }
+    if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
     draw();
   }
 
   function draw() {
     var idx = nearestLoaded(Math.min(SET.count - 1, Math.round(current / SET.step)));
-    if (idx < 0 || !cw) { needsRedraw = true; return; }
-    needsRedraw = false;
+    if (idx < 0 || !cw) return;
     var img = images[idx];
     var iw = img.naturalWidth, ih = img.naturalHeight;
     var scale = Math.max(cw / iw, ch / ih);
     var dw = iw * scale, dh = ih * scale;
     var fx = mobile ? .5 : focusAt(idx * SET.step);
     var dx = Math.min(0, Math.max(cw - dw, cw / 2 - dw * fx));
-    var dy = (ch - dh) / 2;
-    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.drawImage(img, dx, (ch - dh) / 2, dw, dh);
   }
 
-  // ---- Text overlays ----
-  function ramp(t, a) {
-    if (t <= a[0] || t >= a[3]) return 0;
-    if (t < a[1]) return (t - a[0]) / (a[1] - a[0]);
-    if (t <= a[2]) return 1;
-    return 1 - (t - a[2]) / (a[3] - a[2]);
-  }
-
-  var activeStep = -1;
-  function updateText(t) {
-    SCENES.forEach(function (s) {
-      var o = ramp(t, s.at);
-      s.node.style.opacity = o.toFixed(3);
-      s.node.style.pointerEvents = o > 0.5 ? "auto" : "none";
+  // ---- Scene text: each scene is fully in at its stop, gone halfway to the next ----
+  var activeScene = -1;
+  function updateScenes(t) {
+    scenes.forEach(function (s) {
+      var d = t - s.i;
+      var o;
+      if (s.i === 0 && d < 0) o = 1;
+      else o = 1 - Math.min(1, Math.max(0, (Math.abs(d) - 0.12) / 0.3));
+      if (s.i === 5 && d > 0) o = 1 - Math.min(1, Math.max(0, (d - 0.3) / 0.3)); // ring text leaves before the shrink
+      s.el.style.opacity = o.toFixed(3);
+      s.el.style.pointerEvents = o > 0.6 ? "auto" : "none";
+      // lines drift up as they arrive, down as they leave
+      var shift = (1 - o) * (d < 0 ? 40 : -24);
+      for (var k = 0; k < s.lines.length; k++) {
+        s.lines[k].style.transform = "translate3d(0," + (shift * (1 + k * 0.35)).toFixed(1) + "px,0)";
+      }
     });
-    var i = Math.floor((t - STEPS_FROM) / (STEPS_TO - STEPS_FROM) * steps.length);
-    i = Math.max(0, Math.min(steps.length - 1, i));
-    if (i !== activeStep) {
-      steps.forEach(function (li, n) {
-        li.classList.toggle("is-active", n === i);
-        if (n === i) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+
+    var nearest = Math.min(5, Math.round(t));
+    if (nearest !== activeScene) {
+      navButtons.forEach(function (b) {
+        if (+b.getAttribute("data-go") === nearest) b.setAttribute("aria-current", "step");
+        else b.removeAttribute("aria-current");
       });
-      activeStep = i;
+      activeScene = nearest;
     }
+
+    cue.style.opacity = Math.max(0, 1 - t * 3).toFixed(2);
+
+    // Last step: the film shrinks into a framed picture on the light page.
+    var e = Math.max(0, Math.min(1, t - 5));
+    e = e * e * (3 - 2 * e);
+    var inset = (e * 9).toFixed(2);
+    var side = (e * (mobile ? 5 : 14)).toFixed(2);
+    wrap.style.clipPath = e > 0 ? "inset(" + inset + "% " + side + "% " + inset + "% " + side + "% round " + (e * 6).toFixed(1) + "px)" : "";
+    if (header) header.classList.toggle("is-over", t < 5.35);
   }
 
   // ---- Boot ----
   function loadScript(url) {
     return new Promise(function (resolve, reject) {
       var s = document.createElement("script");
-      s.src = url;
-      s.onload = resolve;
-      s.onerror = reject;
+      s.src = url; s.onload = resolve; s.onerror = reject;
       document.head.appendChild(s);
     });
   }
 
   function fallBackToStatic() {
     root.classList.remove("scrub");
-    SCENES.forEach(function (s) { s.node.style.opacity = ""; s.node.style.pointerEvents = ""; });
+    if (header) header.classList.remove("is-over");
+    scenes.forEach(function (s) {
+      s.el.style.opacity = ""; s.el.style.pointerEvents = "";
+      for (var k = 0; k < s.lines.length; k++) s.lines[k].style.transform = "";
+    });
   }
 
-  // First frame right away (it is also preloaded in <head>).
   loadFrame(0, function () { resize(); loadAll(); });
   window.addEventListener("resize", resize);
-  updateText(0);
+  updateScenes(0);
 
   loadScript(GSAP).then(function () { return loadScript(ST); }).then(function () {
-    var gsap = window.gsap;
-    gsap.registerPlugin(window.ScrollTrigger);
-    window.ScrollTrigger.config({ ignoreMobileResize: true });
+    var gsap = window.gsap, ScrollTrigger = window.ScrollTrigger;
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
 
     var proxy = { t: 0 };
-    gsap.to(proxy, {
-      t: TOTAL,
-      ease: "none",
+    var tl = gsap.timeline({
+      defaults: { ease: "none" },
       scrollTrigger: {
         trigger: story,
         start: "top top",
-        end: function () { return "+=" + Math.round(window.innerHeight * TOTAL * SCROLL_PER_SECOND); },
+        end: function () { return "+=" + Math.round(window.innerHeight * TOTAL * SCROLL_PER_SCENE); },
         pin: true,
-        scrub: 0.3,
+        scrub: 0.9,
         anticipatePin: 1,
-        invalidateOnRefresh: true
+        invalidateOnRefresh: true,
+        snap: {
+          snapTo: "labelsDirectional",
+          inertia: false,
+          duration: { min: 0.5, max: 1.4 },
+          delay: 0.04,
+          ease: "power2.inOut"
+        },
+        onLeave: function () { if (header) header.classList.remove("is-over"); },
+        onEnterBack: function () { if (header) header.classList.toggle("is-over", proxy.t < 5.35); }
       },
       onUpdate: function () {
         var f = frameAt(proxy.t);
-        if (Math.round(f / SET.step) !== Math.round(current / SET.step)) {
-          current = f;
-          draw();
-        } else {
-          current = f;
-        }
-        updateText(proxy.t);
+        var changed = Math.round(f / SET.step) !== Math.round(current / SET.step);
+        current = f;
+        if (changed) draw();
+        updateScenes(proxy.t);
       }
     });
+
+    STOPS.forEach(function (s, i) { tl.addLabel(s.name, i); });
+    tl.to(proxy, { t: TOTAL, duration: TOTAL }, 0);
+
+    navButtons.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var y = tl.scrollTrigger.labelToScroll(STOPS[+b.getAttribute("data-go")].name);
+        window.scrollTo({ top: y + 1, behavior: "smooth" });
+      });
+    });
+
+    initReveals(gsap, ScrollTrigger);
   }).catch(fallBackToStatic);
+
+  // ---- Below the story: words brighten as you read, pictures open up ----
+  function initReveals(gsap, ScrollTrigger) {
+    document.querySelectorAll("[data-words]").forEach(function (p) {
+      var words = p.textContent.trim().split(/\s+/);
+      p.setAttribute("aria-label", p.textContent.trim());
+      p.innerHTML = words.map(function (w) { return '<span class="w" aria-hidden="true">' + w + "</span>"; }).join(" ");
+      gsap.fromTo(p.querySelectorAll(".w"), { opacity: 0.16 }, {
+        opacity: 1, stagger: 0.08, ease: "none",
+        scrollTrigger: { trigger: p, start: "top 80%", end: "bottom 45%", scrub: true }
+      });
+    });
+
+    document.querySelectorAll("[data-reveal]").forEach(function (el) {
+      var img = el.querySelector("img");
+      gsap.fromTo(el, { clipPath: "inset(18% 0% 0% 0%)" }, {
+        clipPath: "inset(0% 0% 0% 0%)", ease: "none",
+        scrollTrigger: { trigger: el, start: "top 95%", end: "top 45%", scrub: true }
+      });
+      if (img) gsap.fromTo(img, { scale: 1.18 }, {
+        scale: 1, ease: "none",
+        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true }
+      });
+    });
+  }
 })();

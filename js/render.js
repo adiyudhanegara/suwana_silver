@@ -6,7 +6,7 @@
 
   var grid = document.getElementById("collection-preview");
   if (grid) {
-    grid.innerHTML = S.products.filter(function (p) { return p.featured; }).slice(0, 6).map(L.productCard).join("");
+    grid.innerHTML = S.products.map(L.productCard).join("");
   }
 
   var groups = document.getElementById("collection-groups");
@@ -54,6 +54,32 @@
     rating.innerHTML = S.rating.score + " out of 5 on " + esc(S.rating.source) + ", from " + S.rating.count + " reviews.";
     rating.setAttribute("data-sample", "true");
   }
+
+  var score = document.getElementById("score");
+  if (score) {
+    score.textContent = S.rating.score.toFixed(1);
+    score.setAttribute("data-sample", "true");
+  }
+
+  // Horizontal collection strip: previous / next buttons.
+  document.querySelectorAll("[data-strip]").forEach(function (btn) {
+    var strip = document.getElementById(btn.getAttribute("aria-controls"));
+    if (!strip) return;
+    function update() {
+      var max = strip.scrollWidth - strip.clientWidth - 2;
+      document.querySelectorAll('[aria-controls="' + strip.id + '"]').forEach(function (b) {
+        b.disabled = b.getAttribute("data-strip") === "-1" ? strip.scrollLeft <= 2 : strip.scrollLeft >= max;
+      });
+    }
+    btn.addEventListener("click", function () {
+      var card = strip.firstElementChild;
+      var step = card ? card.getBoundingClientRect().width + 24 : strip.clientWidth * 0.8;
+      strip.scrollBy({ left: step * +btn.getAttribute("data-strip"), behavior: "smooth" });
+    });
+    strip.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  });
 
   var reviews = document.getElementById("reviews");
   if (reviews) {
